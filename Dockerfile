@@ -15,6 +15,7 @@ COPY NudgeMeAPI/*.csproj ./
 RUN dotnet restore
 COPY NudgeMeAPI/ ./
 RUN dotnet publish -c Release -o out
+RUN ls -lR /app/NudgeMeAPI
 
 # Runtime image
 

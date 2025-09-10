@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "NugeMeWeb": {
+    "NudgeMeWeb": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "NugeMeWeb:build:production"
+              "buildTarget": "NudgeMeWeb:build:production"
             },
             "development": {
-              "buildTarget": "NugeMeWeb:build:development"
+              "buildTarget": "NudgeMeWeb:build:development"
             }
           },
           "defaultConfiguration": "development"

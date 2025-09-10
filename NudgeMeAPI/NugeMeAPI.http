@@ -1,0 +1,6 @@
+@NugeMeAPI_HostAddress = http://localhost:5174
+
+GET {{NugeMeAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

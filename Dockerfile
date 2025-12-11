@@ -34,8 +34,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /var/lib/nginx/body /var/lib/nginx/fastcgi /var/lib/nginx/proxy /var/lib/nginx/scgi /var/lib/nginx/uwsgi && \
     mkdir -p /var/log/nginx && \
     mkdir -p /var/cache/nginx && \
-    chown -R 1000:2000 /var/lib/nginx /var/log/nginx /var/cache/nginx && \
-    chmod -R 755 /var/lib/nginx /var/log/nginx /var/cache/nginx
+    mkdir -p /run/nginx && \
+    chown -R 1000:2000 /var/lib/nginx /var/log/nginx /var/cache/nginx /run/nginx && \
+    chmod -R 755 /var/lib/nginx /var/log/nginx /var/cache/nginx /run/nginx
 
 # Expose ports
 EXPOSE 80

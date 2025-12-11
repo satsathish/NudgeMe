@@ -8,7 +8,7 @@ namespace RemindersApi.Controllers
 
     public class ReminderController : ControllerBase
     {
-        private readonly string _connectionString = "Data Source=/app/NudgeMeAPI/reminder.db";
+        private readonly string _connectionString = "Data Source=/data/reminder.db";
 
         [HttpGet]
         public IActionResult GetAll()
@@ -39,11 +39,11 @@ namespace RemindersApi.Controllers
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
             var cmd = connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO reminders (info, createdDate, lastReminded, gapSeconds) VALUES ($info, $createdDate, $lastReminded, $gapSeconds)";
+            cmd.CommandText = @"INSERT INTO reminders (info, createdDate, lastReminded, gapmins) VALUES ($info, $createdDate, $lastReminded, $gapmins)";
             cmd.Parameters.AddWithValue("$info", reminder.Info);
             cmd.Parameters.AddWithValue("$createdDate", new DateTime());
             cmd.Parameters.AddWithValue("$lastReminded", new DateTime());
-            cmd.Parameters.AddWithValue("$gapSeconds", reminder.Gap.TotalSeconds);
+            cmd.Parameters.AddWithValue("$gapmins", reminder.Gap.TotalSeconds);
             cmd.ExecuteNonQuery();
             return Ok();
         }
@@ -54,11 +54,11 @@ namespace RemindersApi.Controllers
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
             var cmd = connection.CreateCommand();
-            cmd.CommandText = @"UPDATE reminders SET info = $info, createdDate = $createdDate, lastReminded = $lastReminded, gapSeconds = $gapSeconds WHERE id = $id";
+            cmd.CommandText = @"UPDATE reminders SET info = $info, createdDate = $createdDate, lastReminded = $lastReminded, gapmins = $gapmins WHERE id = $id";
             cmd.Parameters.AddWithValue("$info", reminder.Info);
             cmd.Parameters.AddWithValue("$createdDate", reminder.CreatedDate.ToString("o"));
             cmd.Parameters.AddWithValue("$lastReminded", reminder.LastReminded?.ToString("o") ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("$gapSeconds", reminder.Gap.TotalSeconds);
+            cmd.Parameters.AddWithValue("gapmins", reminder.Gap.TotalSeconds);
             cmd.Parameters.AddWithValue("$id", id);
             var rows = cmd.ExecuteNonQuery();
             if (rows == 0) return NotFound();

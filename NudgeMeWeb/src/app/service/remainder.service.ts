@@ -1,31 +1,33 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-export interface Reminder {
-    id?: number;
-    message?: string;
-    time?: string;
-}
+import { Observable, map } from 'rxjs';
+import { Reminder, ReminderDto, mapReminderDto, toReminderCreatePayload } from '../model/reminder.model';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ReminderService {
     private readonly http = inject(HttpClient);
-    private apiUrl = 'http://localhost:8080/reminder';
+    // Prefer relative when served via same domain (nginx / container) else set environment
+    //private apiUrl = 'http://localhost:8080/api/reminder';
+
+    private apiUrl = `${environment.apiBase}`;
 
     getAll(): Observable<Reminder[]> {
-        return this.http.get<Reminder[]>(this.apiUrl);
+        return this.http.get<ReminderDto[]>(this.apiUrl + '/Reminder')
+            .pipe(map(list => list.map(mapReminderDto)));
     }
 
-    create(reminder: Reminder): Observable<any> {
-        return this.http.post(this.apiUrl, reminder);
+    create(info: string, gapMinutes: number): Observable<Reminder> {
+        const payload = toReminderCreatePayload({ info, gapMinutes });
+        return this.http.post<ReminderDto>(this.apiUrl + '/Reminder', payload)
+            .pipe(map(mapReminderDto));
     }
 
-    update(id: number, reminder: Reminder): Observable<any> {
-        return this.http.put(`${this.apiUrl}/${id}`, reminder);
+    update(id: number, patch: Partial<{ info: string; gapSeconds: number; lastReminded: string | null }>): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/${id}`, patch);
     }
 
-    delete(id: number): Observable<any> {
-        return this.http.delete(`${this.apiUrl}/${id}`);
+    delete(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }

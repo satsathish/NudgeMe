@@ -1,0 +1,23 @@
+<mat-card class="view-nudge-card">
+    <mat-card-title>Nudges</mat-card-title>
+    <mat-card-subtitle>
+        <button mat-stroked-button color="primary" (click)="load()" [disabled]="loading()">Reload</button>
+    </mat-card-subtitle>
+    <mat-card-content>
+        <div class="center" *ngIf="loading()">
+            <mat-spinner diameter="40"></mat-spinner>
+        </div>
+        <div class="error" *ngIf="error() as e">Error: {{ e }}</div>
+        <mat-list *ngIf="!loading() && !error() && reminders().length">
+            <mat-list-item *ngFor="let r of reminders()" lines="3">
+                <div matListItemTitle>{{ r.info }}</div>
+                <!-- <div matListItemLine>Created: {{ (r.createdDate || r.time) | date:'short' }}</div> -->
+                <!-- <div matListItemLine class="gap">Gap: {{ r.gapSeconds || r.gap?.minutes || '?' }} mins</div> -->
+                <button mat-icon-button color="warn" matListItemMeta aria-label="Delete">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </mat-list-item>
+        </mat-list>
+        <div class="empty" *ngIf="!loading() && !error() && !reminders().length">No nudges yet.</div>
+    </mat-card-content>
+</mat-card>

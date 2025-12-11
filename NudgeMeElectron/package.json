@@ -1,0 +1,52 @@
+{
+  "name": "nudgeme-electron",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Electron desktop shell for NudgeMe (Angular frontend + .NET backend).",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "node dist/scripts/copyAssets.js",
+    "watch": "tsc -w -p tsconfig.json",
+    "start": "npm run build && electron .",
+    "start:electron": "electron .",
+    "dev": "npm run build && electron .",
+    "dev:watch": "concurrently \"npm:watch\" \"npm:start:electron\"",
+    "lint": "eslint . --ext .ts",
+    "package": "npm run build && electron-builder"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/electron": "^1.6.10",
+    "typescript": "^5.4.0",
+    "ts-node": "^10.9.2",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.9.0",
+    "eslint": "^8.57.0",
+    "concurrently": "^8.2.2"
+  },
+  "build": {
+    "appId": "com.nudgeme.app",
+    "productName": "NudgeMe",
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Utility"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity"
+    }
+  }
+}

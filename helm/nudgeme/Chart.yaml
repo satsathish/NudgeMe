@@ -1,0 +1,13 @@
+apiVersion: v2
+name: nudgeme
+description: A Helm chart for NudgeMe - Angular frontend + .NET API with SQLite
+type: application
+version: 0.1.0
+appVersion: "1.0"
+keywords:
+  - nudgeme
+  - reminder
+  - angular
+  - dotnet
+maintainers:
+  - name: NudgeMe Team

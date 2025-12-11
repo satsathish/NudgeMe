@@ -1,0 +1,41 @@
+<mat-card class="add-nudge-card">
+    <mat-card-title>Add Nudge</mat-card-title>
+    <mat-card-content>
+        <form (ngSubmit)="submit()" [formGroup]="form" class="nudge-form" novalidate>
+            <mat-form-field appearance="outline" class="full">
+                <mat-label>Info</mat-label>
+                <textarea matInput rows="2" formControlName="info" placeholder="What should we remind you?"></textarea>
+                <mat-error *ngIf="info.hasError('required')">Info is required</mat-error>
+                <mat-error *ngIf="info.hasError('maxLength')">Max 500 characters</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="gap-field">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date">
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker">
+                    <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+                </mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="gap-field">
+                <mat-label>Timing</mat-label>
+                <input matInput [matTimepicker]="hoursPicker" formControlName="time">
+                <mat-timepicker-toggle matIconSuffix [for]="hoursPicker" />
+                <mat-timepicker interval="0.5h" #hoursPicker />
+            </mat-form-field>
+            <div class="actions">
+                <button mat-flat-button color="primary" type="submit" [disabled]="submitting() || form.invalid">
+                    <ng-container *ngIf="!submitting(); else saving">Save</ng-container>
+                </button>
+                <ng-template #saving>
+                    <span class="saving-wrapper">
+                        <mat-spinner diameter="20"></mat-spinner>
+                        Saving...
+                    </span>
+                </ng-template>
+            </div>
+        </form>
+        <div class="result" *ngIf="createdId() as id">Created reminder #{{ id }}</div>
+        <div class="error" *ngIf="error() as e">Error: {{ e }}</div>
+    </mat-card-content>
+</mat-card>

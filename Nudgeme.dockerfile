@@ -3,9 +3,9 @@
 FROM node:20 AS frontend-build
 WORKDIR /app/NudgeMeWeb
 COPY NudgeMeWeb/package*.json ./
-RUN npm install
+RUN npm ci --legacy-peer-deps
 COPY NudgeMeWeb/ .
-RUN npm run build:prod -- --output-path=dist
+RUN node node_modules/@angular/cli/bin/ng build --configuration production --output-path=dist
 
 # Build .NET backend
 

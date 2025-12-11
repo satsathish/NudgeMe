@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Reminder, ReminderService } from '../service/remainder.service';
+import { ReminderService } from '../service/remainder.service';
+import { Reminder } from '../model/reminder.model';
 
 @Component({
   standalone: true,

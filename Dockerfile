@@ -30,6 +30,12 @@ RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 # Copy Nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Create Nginx directories and set permissions for non-root user
+RUN mkdir -p /var/lib/nginx/body /var/lib/nginx/fastcgi /var/lib/nginx/proxy /var/lib/nginx/scgi /var/lib/nginx/uwsgi && \
+    mkdir -p /var/log/nginx && \
+    chown -R 1000:2000 /var/lib/nginx /var/log/nginx /var/cache/nginx /run/nginx && \
+    chmod -R 755 /var/lib/nginx /var/log/nginx
+
 # Expose ports
 EXPOSE 80
 

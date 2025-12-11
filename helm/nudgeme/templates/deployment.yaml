@@ -42,6 +42,16 @@ spec:
           value: {{ .Values.env.dbPath | quote }}
         - name: ASPNETCORE_ENVIRONMENT
           value: {{ .Values.env.aspnetcoreEnvironment | quote }}
+        - name: DB_HOST
+          value: {{ .Values.env.dbHost | quote }}
+        - name: DB_PORT
+          value: {{ .Values.env.dbPort | quote }}
+        - name: DB_USER
+          value: {{ .Values.env.dbUser | quote }}
+        - name: DB_PASSWORD
+          value: {{ .Values.env.dbPassword | quote }}
+        - name: DB_NAME
+          value: {{ .Values.env.dbName | quote }}
         {{- if .Values.env.allowedOrigins }}
         - name: ALLOWED_ORIGINS
           value: {{ .Values.env.allowedOrigins | quote }}

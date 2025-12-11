@@ -3,8 +3,8 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/satsathish/nudgeme
-  pullPolicy: IfNotPresent
-  tag: "latest"
+  pullPolicy: Never
+  tag: "postgresql"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -74,10 +74,20 @@ env:
   aspnetcoreEnvironment: Production
   allowedOrigins: ""  # comma-separated origins, empty uses defaults
   databaseProvider: PostgreSQL
+  dbHost: nudgeme-postgresql
+  dbPort: "5432"
+  dbUser: nudgeme
+  dbPassword: nudgemepass
+  dbName: nudgeme
 
 # PostgreSQL Configuration
 postgresql:
   enabled: true
+  image:
+    registry: docker.io
+    repository: library/postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
   auth:
     username: nudgeme
     password: nudgemepass

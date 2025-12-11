@@ -29,8 +29,9 @@ securityContext:
   runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
+  nodePort: 30080
 
 ingress:
   enabled: true
@@ -59,7 +60,7 @@ resources:
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 80
 
 nodeSelector: {}

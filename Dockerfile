@@ -43,10 +43,12 @@ EXPOSE 80
 
 # Create entrypoint script
 RUN echo '#!/bin/sh\n\
+exec 2>&1\n\
 set -e\n\
 echo "Starting .NET backend..."\n\
 dotnet /app/NudgeMeAPI/NudgeMeAPI.dll &\n\
-API_PID=$!\n\
+DOTNET_PID=$!\n\
+sleep 3\n\
 echo "Starting Nginx..."\n\
 exec nginx -g "daemon off;"\n\
 ' > /entrypoint.sh && chmod +x /entrypoint.sh

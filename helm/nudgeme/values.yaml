@@ -71,14 +71,26 @@ affinity: {}
 
 # Application environment variables
 env:
-  dbPath: /data/reminder.db
   aspnetcoreEnvironment: Production
   allowedOrigins: ""  # comma-separated origins, empty uses defaults
+  databaseProvider: PostgreSQL
 
-# Persistence for SQLite database
-persistence:
+# PostgreSQL Configuration
+postgresql:
   enabled: true
-  storageClass: ""  # empty uses cluster default
+  auth:
+    username: nudgeme
+    password: nudgemepass
+    database: nudgeme
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+
+# Persistence for data
+persistence:
+  enabled: false
+  storageClass: ""
   accessMode: ReadWriteOnce
   size: 1Gi
   mountPath: /data

@@ -18,6 +18,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.9" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
+    <PackageReference Include="Npgsql" Version="8.0.5" />
   </ItemGroup>
 
   <Target Name="BuildAngular" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">

@@ -73,7 +73,6 @@ affinity: {}
 env:
   aspnetcoreEnvironment: Production
   allowedOrigins: ""  # comma-separated origins, empty uses defaults
-  databaseProvider: PostgreSQL
   dbHost: nudgeme-postgresql
   dbPort: "5432"
   dbUser: nudgeme

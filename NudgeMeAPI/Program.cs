@@ -46,27 +46,29 @@ app.UseStaticFiles();
 
 app.UseCors("NudgeMeCors");
 
-var dbPathEnv = Environment.GetEnvironmentVariable("DB_PATH");
-var dbPath = string.IsNullOrWhiteSpace(dbPathEnv) ? "/data/reminder.db" : dbPathEnv;
-var dbDir = Path.GetDirectoryName(dbPath);
-if (!string.IsNullOrWhiteSpace(dbDir) && !Directory.Exists(dbDir))
-{
-    Directory.CreateDirectory(dbDir);
-}
+// PostgreSQL initialization
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "nudgeme";
 
-using (var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"))
+var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
+Console.WriteLine($"PostgreSQL connecting to {dbHost}:{dbPort}/{dbName}");
+
+using (var connection = new Npgsql.NpgsqlConnection(connectionString))
 {
     connection.Open();
     var cmd = connection.CreateCommand();
     cmd.CommandText = @"CREATE TABLE IF NOT EXISTS reminders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         info TEXT NOT NULL,
         createdDate TEXT NOT NULL,
         lastReminded TEXT,
         gapmins INTEGER NOT NULL
     );";
     cmd.ExecuteNonQuery();
-    Console.WriteLine($"SQLite initialized at {dbPath}");
+    Console.WriteLine($"PostgreSQL initialized");
 }
 
 if (app.Environment.IsDevelopment())

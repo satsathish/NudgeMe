@@ -38,8 +38,6 @@ spec:
           containerPort: 8080
           protocol: TCP
         env:
-        - name: DB_PATH
-          value: {{ .Values.env.dbPath | quote }}
         - name: ASPNETCORE_ENVIRONMENT
           value: {{ .Values.env.aspnetcoreEnvironment | quote }}
         - name: DB_HOST

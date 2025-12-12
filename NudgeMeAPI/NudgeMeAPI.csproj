@@ -21,7 +21,7 @@
     <PackageReference Include="Npgsql" Version="8.0.5" />
   </ItemGroup>
 
-  <Target Name="BuildAngular" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="BuildAngular" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release' AND '$(SkipAngularBuild)' != 'true'">
     <Message Text="Building Angular app..." Importance="high" />
     <Exec Command="npm ci --legacy-peer-deps" WorkingDirectory="$(SpaRoot)" />
     <Exec Command="node node_modules/@angular/cli/bin/ng build --configuration production --output-path dist/browser" WorkingDirectory="$(SpaRoot)" />

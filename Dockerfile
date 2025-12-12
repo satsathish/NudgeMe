@@ -15,7 +15,7 @@ WORKDIR /app/NudgeMeAPI
 COPY NudgeMeAPI/*.csproj ./
 RUN dotnet restore --source https://api.nuget.org/v3/index.json
 COPY NudgeMeAPI/ ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out -p:SkipAngularBuild=true
 
 # Runtime image
 

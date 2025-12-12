@@ -1,5 +1,15 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure WebRootPath to use wwwroot from output directory
+var outputWwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+builder.Environment.WebRootPath = outputWwwroot;
+if (Directory.Exists(outputWwwroot))
+{
+    builder.Environment.WebRootFileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(outputWwwroot);
+}
+Console.WriteLine($"WebRootPath set to: {builder.Environment.WebRootPath}");
+Console.WriteLine($"Directory exists: {Directory.Exists(outputWwwroot)}");
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -30,31 +40,45 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-
+// Serve static files first
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseCors("NudgeMeCors");
 
-// PostgreSQL connection string
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "postgresql";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "nudgeme";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "nudgemepass";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "nudgeme";
+var dbPathEnv = Environment.GetEnvironmentVariable("DB_PATH");
+var dbPath = string.IsNullOrWhiteSpace(dbPathEnv) ? "/data/reminder.db" : dbPathEnv;
+var dbDir = Path.GetDirectoryName(dbPath);
+if (!string.IsNullOrWhiteSpace(dbDir) && !Directory.Exists(dbDir))
+{
+    Directory.CreateDirectory(dbDir);
+}
 
-var connectionString = $"Host={dbHost};Port={dbPort};Username={dbUser};Password={dbPassword};Database={dbName}";
-builder.Configuration.GetSection("ConnectionStrings")["DefaultConnection"] = connectionString;
-
-Console.WriteLine($"PostgreSQL connecting to {dbHost}:{dbPort}/{dbName}");
-
-app.MapControllers();
+using (var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"))
+{
+    connection.Open();
+    var cmd = connection.CreateCommand();
+    cmd.CommandText = @"CREATE TABLE IF NOT EXISTS reminders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        info TEXT NOT NULL,
+        createdDate TEXT NOT NULL,
+        lastReminded TEXT,
+        gapmins INTEGER NOT NULL
+    );";
+    cmd.ExecuteNonQuery();
+    Console.WriteLine($"SQLite initialized at {dbPath}");
+}
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.Run();
 }
-else
-{
-    app.Run("http://0.0.0.0:5000");
-}
+
+// Map API controllers
+app.MapControllers();
+
+// Fallback to index.html for client-side routing (SPA)
+app.MapFallbackToFile("index.html");
+
+app.Run();

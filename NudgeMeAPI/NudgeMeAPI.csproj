@@ -4,12 +4,45 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <SpaRoot>..\NudgeMeWeb\</SpaRoot>
+    <SpaProxyServerUrl>http://localhost:4200</SpaProxyServerUrl>
   </PropertyGroup>
+
+  <!-- Preserve wwwroot during clean -->
+  <ItemGroup>
+    <Content Include="$(OutputPath)wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    <PackageReference Include="Npgsql" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.9" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
   </ItemGroup>
+
+  <Target Name="BuildAngular" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Message Text="Building Angular app..." Importance="high" />
+    <Exec Command="npm ci --legacy-peer-deps" WorkingDirectory="$(SpaRoot)" />
+    <Exec Command="node node_modules/@angular/cli/bin/ng build --configuration production --output-path dist/browser" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <Target Name="CopyAngularInDev" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Debug' AND Exists('..\NudgeMeWeb\dist\NudgeMeWeb\browser')">
+    <Message Text="Copying Angular build from ..\NudgeMeWeb\dist\NudgeMeWeb\browser to $(OutputPath)wwwroot..." Importance="high" />
+    <PropertyGroup>
+      <WwwRootPath>$(MSBuildProjectDirectory)\bin\Debug\net8.0\wwwroot</WwwRootPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <AngularDevFiles Include="..\NudgeMeWeb\dist\NudgeMeWeb\browser\**\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(WwwRootPath)" />
+    <Copy SourceFiles="@(AngularDevFiles)" DestinationFolder="$(WwwRootPath)\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="PublishAngular" AfterTargets="Publish">
+    <ItemGroup>
+      <AngularFiles Include="$(SpaRoot)dist\browser\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AngularFiles)" DestinationFolder="$(PublishDir)wwwroot\%(RecursiveDir)" />
+  </Target>
 
 </Project>

@@ -3,8 +3,8 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/satsathish/nudgeme
-  pullPolicy: Never
-  tag: "postgresql"
+  pullPolicy: Always
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -31,7 +31,7 @@ securityContext:
 service:
   type: NodePort
   port: 80
-  nodePort: 30080
+  nodePort: 30082
 
 ingress:
   enabled: false

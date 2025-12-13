@@ -12,8 +12,14 @@ namespace RemindersApi.Controllers
 
         public ReminderController(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") 
-                ?? "Host=postgresql;Port=5432;Username=nudgeme;Password=nudgemepass;Database=nudgeme";
+            // Read from environment variables
+            var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "nudgeme-postgresql";
+            var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+            var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "nudgeme";
+            var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "nudgemepass";
+            var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "nudgeme";
+            
+            _connectionString = $"Host={dbHost};Port={dbPort};Username={dbUser};Password={dbPassword};Database={dbName}";
         }
 
         [HttpGet]

@@ -46,31 +46,6 @@ app.UseStaticFiles();
 
 app.UseCors("NudgeMeCors");
 
-// PostgreSQL initialization
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "postgres";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "nudgeme";
-
-var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
-Console.WriteLine($"PostgreSQL connecting to {dbHost}:{dbPort}/{dbName}");
-
-using (var connection = new Npgsql.NpgsqlConnection(connectionString))
-{
-    connection.Open();
-    var cmd = connection.CreateCommand();
-    cmd.CommandText = @"CREATE TABLE IF NOT EXISTS reminders (
-        id SERIAL PRIMARY KEY,
-        info TEXT NOT NULL,
-        createdDate TEXT NOT NULL,
-        lastReminded TEXT,
-        gapmins INTEGER NOT NULL
-    );";
-    cmd.ExecuteNonQuery();
-    Console.WriteLine($"PostgreSQL initialized");
-}
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

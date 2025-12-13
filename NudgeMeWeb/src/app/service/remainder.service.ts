@@ -7,10 +7,9 @@ import { environment } from '../../environments/environment';
 @Injectable()
 export class ReminderService {
     private readonly http = inject(HttpClient);
-    // Prefer relative when served via same domain (nginx / container) else set environment
-    //private apiUrl = 'http://localhost:8080/api/reminder';
-
-    private apiUrl = `${environment.apiBase}`;
+    
+    // Dynamically construct API URL based on current domain
+    private apiUrl = `${window.location.origin}`;
 
     getAll(): Observable<Reminder[]> {
         return this.http.get<ReminderDto[]>(this.apiUrl + '/Reminder')

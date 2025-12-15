@@ -16,7 +16,7 @@ export interface WindowSizeConfig {
     yOffsetPercent?: number; // Optional Y offset from top (0-1)
 }
 
-export abstract class NudgeMeView {
+export abstract class AbstractNudgeMeView {
     private _browerWindow!: BrowserWindow;
     private _identifier: string = '';
 

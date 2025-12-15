@@ -1,10 +1,10 @@
 import { app, BrowserWindow, shell, Menu, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import { NudgeMeWindow } from './nudgeme-window';
-import { NudgeMeNotification } from './nudgeme-notification';
-import { ViewManager } from './service/view-maanger.service';
-import { TrayManager } from './service/tray-manager.service';
-import { ReminderPollingService } from './service/reminder-polling.service';
+import { NudgeMeWindow } from './views/nudgeme-window';
+import { NudgeMeNotification } from './views/nudgeme-notification';
+import { ViewManager } from './service/view-manager-service';
+import { TrayManager } from './service/tray-manager';
+import { ReminderPollingService } from './service/reminder-polling';
 
 app.whenReady().then(() => {
     const viewManager = ViewManager.getInstance();
@@ -17,7 +17,6 @@ app.whenReady().then(() => {
 
     // Start polling for reminders every 1 minute
     const pollingService = ReminderPollingService.getInstance();
-    pollingService.setApiUrl('http://172.19.1.100:30082');
     pollingService.start();
 
     // Listen for close window events from Angular
@@ -78,8 +77,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-        // if (nudgeMeWindow.isVisible())
-        //     nudgeMeWindow.show('http://localhost:4200');
     }
 });
 

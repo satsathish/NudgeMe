@@ -1,5 +1,5 @@
 import { NudgeMeViewInterface } from "../models/nudge-view.interface";
-import { NudgeMeView } from "../nudgeme-view.abstract";
+import { AbstractNudgeMeView } from "../views/abstract-nudgeme-view";
 
 export class ViewManager {
     private static instance: ViewManager;

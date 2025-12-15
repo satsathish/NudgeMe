@@ -1,6 +1,7 @@
 import { app, shell, Tray, Menu, nativeImage, NativeImage } from 'electron';
 import path from "path";
-import { ViewManager } from './view-maanger.service';
+import { ViewManager } from './view-manager-service';
+import { NudgeMeConstant } from '../models/constant';
 
 export class TrayManager {
     static initTray() {
@@ -12,7 +13,7 @@ export class TrayManager {
 
         tray.on('double-click', () => {
             const viewManger = ViewManager.getInstance();
-            viewManger.show('window', 'http://172.19.1.100:30082/add-nudge');
+            viewManger.show('window', `${NudgeMeConstant.ADD_NUDGE_URL}/add-nudge`);
         });
     }
     private static getTrayMenu(tray: Tray): Menu {
@@ -20,17 +21,17 @@ export class TrayManager {
         return Menu.buildFromTemplate([
             {
                 label: 'Add Nudge', click: () => {
-                    viewManger.show('window', 'http://172.19.1.100:30082/add-nudge');
+                    viewManger.show(NudgeMeConstant.WindowView, `${NudgeMeConstant.ADD_NUDGE_URL}/add-nudge`);
                 }
             },
             {
                 label: 'View Nudge', click: () => {
-                    viewManger.show('notification', 'http://172.19.1.100:30082/view-nudge');
+                    viewManger.show(NudgeMeConstant.WindowView, `${NudgeMeConstant.ADD_NUDGE_URL}/view-nudge`);
                 }
             },
             {
                 label: 'View All', click: () => {
-                    shell.openExternal('http://172.19.1.100:30082/view-nudge');
+                    shell.openExternal(`${NudgeMeConstant.ADD_NUDGE_URL}/view-nudge`);
                 }
             },
             {
@@ -42,7 +43,7 @@ export class TrayManager {
     }
 
     private static getTrayImage(): NativeImage {
-        const iconPath = path.join(__dirname, '..' ,'icon.png');
+        const iconPath = path.join(__dirname, '..', 'icon.png');
         console.log('Tray icon path:', iconPath);
         const image = nativeImage.createFromPath(iconPath);
 

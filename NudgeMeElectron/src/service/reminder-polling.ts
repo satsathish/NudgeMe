@@ -1,4 +1,5 @@
-import { ViewManager } from "./view-maanger.service";
+import { NudgeMeConstant } from "../models/constant";
+import { ViewManager } from "./view-manager-service";
 
 interface Reminder {
     id: number;
@@ -13,7 +14,6 @@ interface Reminder {
 export class ReminderPollingService {
     private static instance: ReminderPollingService;
     private intervalId: NodeJS.Timeout | null = null;
-    private apiBaseUrl: string = 'http://172.19.1.100:30082';
     private viewManager: ViewManager;
 
     private constructor() {
@@ -25,10 +25,6 @@ export class ReminderPollingService {
             ReminderPollingService.instance = new ReminderPollingService();
         }
         return ReminderPollingService.instance;
-    }
-
-    setApiUrl(url: string): void {
-        this.apiBaseUrl = url;
     }
 
     start(): void {
@@ -45,7 +41,7 @@ export class ReminderPollingService {
         // Then check every 1 minute
         this.intervalId = setInterval(() => {
             this.checkReminders();
-        }, 60 * 100); // 60 seconds
+        }, 60 * 1000); // 60 seconds
     }
 
     stop(): void {
@@ -58,8 +54,8 @@ export class ReminderPollingService {
 
     private async checkReminders(): Promise<void> {
         try {
-            console.log('Checking for reminders...', `${this.apiBaseUrl}/Reminder`);
-            const response = await fetch(`${this.apiBaseUrl}/Reminder`);
+            console.log('Checking for reminders...', `${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`);
+            const response = await fetch(`${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`);
 
             if (!response.ok) {
                 console.error('Failed to fetch reminders:', response.status, response.statusText);
@@ -102,7 +98,7 @@ export class ReminderPollingService {
 
         if (notification && !notification.isVisible()) {
             // Pass reminder ID as query parameter to load specific reminder
-            const url = `${this.apiBaseUrl}/view-nudge?id=${reminder.id}`;
+            const url = `${NudgeMeConstant.ADD_NUDGE_URL}/view-nudge?id=${reminder.id}`;
             notification.show(url);
 
             console.log(`Notification triggered for: ${reminder.info} at ${reminder.nextReminder}`);

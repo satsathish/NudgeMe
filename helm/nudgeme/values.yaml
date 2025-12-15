@@ -30,7 +30,7 @@ securityContext:
 
 service:
   type: NodePort
-  port: 80
+  port: 8080
   nodePort: 30082
 
 ingress:
@@ -95,6 +95,8 @@ postgresql:
     persistence:
       enabled: true
       size: 5Gi
+      # Retain PVC even after helm uninstall
+      resourcePolicy: keep
 
 # Persistence for data
 persistence:

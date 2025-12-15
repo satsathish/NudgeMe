@@ -38,13 +38,14 @@ namespace RemindersApi.Controllers
                         info TEXT NOT NULL,
                         createdDate TIMESTAMP NOT NULL,
                         lastReminded TIMESTAMP,
-                        gapmins BIGINT NOT NULL
+                        gapmins BIGINT NOT NULL,
+                        snooze BOOLEAN NOT NULL DEFAULT false
                     )";
                 cmd.ExecuteNonQuery();
             }
 
             using var selectCmd = connection.CreateCommand();
-            selectCmd.CommandText = "SELECT id, info, createdDate, lastReminded, gapmins FROM reminders ORDER BY id";
+            selectCmd.CommandText = "SELECT id, info, createdDate, lastReminded, gapmins, snooze FROM reminders ORDER BY id";
             using var reader = selectCmd.ExecuteReader();
             while (reader.Read())
             {
@@ -54,7 +55,8 @@ namespace RemindersApi.Controllers
                     Info = reader.GetString(1),
                     CreatedDate = reader.GetDateTime(2),
                     LastReminded = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
-                    Gap = TimeSpan.FromSeconds(reader.GetInt64(4))
+                    Gap = TimeSpan.FromSeconds(reader.GetInt64(4)),
+                    Snooze = reader.GetBoolean(5)
                 });
             }
             return Ok(reminders);
@@ -68,12 +70,13 @@ namespace RemindersApi.Controllers
             
             using var cmd = connection.CreateCommand();
             cmd.CommandText = @"
-                INSERT INTO reminders (info, createdDate, lastReminded, gapmins) 
-                VALUES (@info, @createdDate, @lastReminded, @gapmins)";
+                INSERT INTO reminders (info, createdDate, lastReminded, gapmins, snooze) 
+                VALUES (@info, @createdDate, @lastReminded, @gapmins, @snooze)";
             cmd.Parameters.AddWithValue("@info", reminder.Info);
             cmd.Parameters.AddWithValue("@createdDate", DateTime.UtcNow);
             cmd.Parameters.AddWithValue("@lastReminded", DBNull.Value);
             cmd.Parameters.AddWithValue("@gapmins", (long)reminder.Gap.TotalSeconds);
+            cmd.Parameters.AddWithValue("@snooze", reminder.Snooze);
             cmd.ExecuteNonQuery();
             return Ok();
         }
@@ -87,12 +90,13 @@ namespace RemindersApi.Controllers
             using var cmd = connection.CreateCommand();
             cmd.CommandText = @"
                 UPDATE reminders 
-                SET info = @info, createdDate = @createdDate, lastReminded = @lastReminded, gapmins = @gapmins 
+                SET info = @info, createdDate = @createdDate, lastReminded = @lastReminded, gapmins = @gapmins, snooze = @snooze 
                 WHERE id = @id";
             cmd.Parameters.AddWithValue("@info", reminder.Info);
             cmd.Parameters.AddWithValue("@createdDate", reminder.CreatedDate);
             cmd.Parameters.AddWithValue("@lastReminded", reminder.LastReminded ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@gapmins", (long)reminder.Gap.TotalSeconds);
+            cmd.Parameters.AddWithValue("@snooze", reminder.Snooze);
             cmd.Parameters.AddWithValue("@id", id);
             var rows = cmd.ExecuteNonQuery();
             if (rows == 0) return NotFound();
@@ -107,6 +111,24 @@ namespace RemindersApi.Controllers
             
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "DELETE FROM reminders WHERE id = @id";
+            cmd.Parameters.AddWithValue("@id", id);
+            var rows = cmd.ExecuteNonQuery();
+            if (rows == 0) return NotFound();
+            return Ok();
+        }
+
+        [HttpPatch("{id}/snooze")]
+        public IActionResult UpdateSnooze(int id, [FromBody] SnoozeRequest request)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+            
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = @"
+                UPDATE reminders 
+                SET snooze = @snooze 
+                WHERE id = @id";
+            cmd.Parameters.AddWithValue("@snooze", request.Snooze);
             cmd.Parameters.AddWithValue("@id", id);
             var rows = cmd.ExecuteNonQuery();
             if (rows == 0) return NotFound();

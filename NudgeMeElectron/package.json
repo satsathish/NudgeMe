@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.json",
     "postbuild": "node dist/scripts/copyAssets.js",
     "watch": "tsc -w -p tsconfig.json",
+    "serve": "npm run build && electron .",
     "start": "npm run build && electron .",
     "start:electron": "electron .",
     "dev": "npm run build && electron .",
@@ -26,6 +27,9 @@
     "eslint": "^8.57.0",
     "concurrently": "^8.2.2"
   },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
   "build": {
     "appId": "com.nudgeme.app",
     "productName": "NudgeMe",
@@ -36,9 +40,19 @@
     "directories": {
       "buildResources": "build"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "satsathish",
+      "repo": "NudgeMe"
+    },
     "win": {
       "target": ["nsis"],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "publisherName": "NudgeMe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
     "linux": {
       "target": ["AppImage"],

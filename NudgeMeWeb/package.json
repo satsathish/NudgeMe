@@ -4,8 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && npm run copy:webtoapi",
     "build:prod": "ng build --configuration production",
+    "b": "ng build --configuration production && npm run copy:webtoapi",
+    "copy:webtoapi": "powershell -Command \"if (Test-Path 'dist/NudgeMeWeb/browser') { Copy-Item -Path 'dist/NudgeMeWeb/browser/*' -Destination '../NudgeMeAPI/bin/Debug/net8.0/wwwroot' -Recurse -Force }\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

@@ -26,7 +26,7 @@ export class TrayManager {
             },
             {
                 label: 'View Nudge', click: () => {
-                    viewManger.show(NudgeMeConstant.WindowView, `${NudgeMeConstant.ADD_NUDGE_URL}/view-nudge`);
+                    viewManger.show(NudgeMeConstant.NotificationView, `${NudgeMeConstant.ADD_NUDGE_URL}/nudge/1`);
                 }
             },
             {

@@ -7,16 +7,18 @@ export interface ReminderDto {
     createdDate: string;          // ISO string from API
     lastReminded?: string | null; // ISO or null
     gapSeconds: number;           // numeric seconds (if API returns gapSeconds)
+    snooze: boolean;
     // optional server computed field if later exposed
     nextReminder?: string;
 }
 
 export interface Reminder {
-    id?: number;
+    id: number;
     info: string;
     createdDate: Date;
     lastReminded: Date | null;
     gap: number;          // total seconds
+    snooze: boolean;
     nextReminder?: Date;  // optional
 }
 
@@ -27,6 +29,7 @@ export function mapReminderDto(dto: ReminderDto): Reminder {
         createdDate: new Date(dto.createdDate),
         lastReminded: dto.lastReminded ? new Date(dto.lastReminded) : null,
         gap: dto.gapSeconds,
+        snooze: dto.snooze,
         nextReminder: dto.nextReminder ? new Date(dto.nextReminder) : undefined
     };
 }

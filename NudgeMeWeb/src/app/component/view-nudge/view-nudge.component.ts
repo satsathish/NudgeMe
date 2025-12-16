@@ -36,4 +36,26 @@ export class ViewNudgeComponent {
             complete: () => this.loading.set(false)
         });
     }
+
+    toggleSnooze(reminder: Reminder) {
+        this.service.updateSnooze(reminder.id, !reminder.snooze).subscribe({
+            next: () => {
+                const updated = this.reminders().map(r => 
+                    r.id === reminder.id ? { ...r, snooze: !r.snooze } : r
+                );
+                this.reminders.set(updated);
+            },
+            error: (err) => console.error('Failed to toggle snooze:', err)
+        });
+    }
+
+    delete(id: number) {
+        if (!confirm('Delete this reminder?')) return;
+        this.service.delete(id).subscribe({
+            next: () => {
+                this.reminders.set(this.reminders().filter(r => r.id !== id));
+            },
+            error: (err) => console.error('Failed to delete:', err)
+        });
+    }
 }

@@ -29,4 +29,8 @@ export class ReminderService {
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
+    updateSnooze(id: number, snooze: boolean): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/Reminder/${id}/snooze`, { snooze });
+    }
 }

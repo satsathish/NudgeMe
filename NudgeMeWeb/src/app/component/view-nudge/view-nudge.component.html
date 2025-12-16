@@ -1,23 +1,87 @@
-<mat-card class="view-nudge-card">
-    <mat-card-title>Nudges</mat-card-title>
-    <mat-card-subtitle>
-        <button mat-stroked-button color="primary" (click)="load()" [disabled]="loading()">Reload</button>
-    </mat-card-subtitle>
-    <mat-card-content>
-        <div class="center" *ngIf="loading()">
-            <mat-spinner diameter="40"></mat-spinner>
-        </div>
-        <div class="error" *ngIf="error() as e">Error: {{ e }}</div>
-        <mat-list *ngIf="!loading() && !error() && reminders().length">
-            <mat-list-item *ngFor="let r of reminders()" lines="3">
-                <div matListItemTitle>{{ r.info }}</div>
-                <!-- <div matListItemLine>Created: {{ (r.createdDate || r.time) | date:'short' }}</div> -->
-                <!-- <div matListItemLine class="gap">Gap: {{ r.gapSeconds || r.gap?.minutes || '?' }} mins</div> -->
-                <button mat-icon-button color="warn" matListItemMeta aria-label="Delete">
+<div class="view-nudge-container">
+    <div class="header">
+        <h1>My Reminders</h1>
+        <button mat-raised-button color="primary" (click)="load()" [disabled]="loading()">
+            <mat-icon>refresh</mat-icon> Reload
+        </button>
+    </div>
+
+    <div class="loading-container" *ngIf="loading()">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading reminders...</p>
+    </div>
+
+    <div class="error-container" *ngIf="error() as e">
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ e }}</p>
+    </div>
+
+    <div class="reminders-grid" *ngIf="!loading() && !error()">
+        <mat-card class="reminder-card" *ngFor="let r of reminders()" [class.snoozed]="r.snooze">
+            <mat-card-header>
+                <mat-card-title>
+                    <div class="title-row">
+                        <span class="info">{{ r.info }}</span>
+                        <span class="snooze-badge" [class.active]="r.snooze">
+                            {{ r.snooze ? 'SNOOZED' : 'ACTIVE' }} {{r.snooze}}
+                        </span>
+                    </div>
+                </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <mat-icon class="detail-icon">event</mat-icon>
+                        <div class="detail-text">
+                            <label>Created</label>
+                            <span>{{ r.createdDate | date:'medium' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item" *ngIf="r.lastReminded">
+                        <mat-icon class="detail-icon">notifications_active</mat-icon>
+                        <div class="detail-text">
+                            <label>Last Reminded</label>
+                            <span>{{ r.lastReminded | date:'medium' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <mat-icon class="detail-icon">schedule</mat-icon>
+                        <div class="detail-text">
+                            <label>Next Reminder</label>
+                            <span class="highlight">{{ r.nextReminder | date:'medium' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <mat-icon class="detail-icon">timer</mat-icon>
+                        <div class="detail-text">
+                            <label>Interval</label>
+                            <span>{{ r.gap }}</span>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button mat-raised-button 
+                        [color]="r.snooze ? 'accent' : 'primary'" 
+                        (click)="toggleSnooze(r)">
+                    <mat-icon>{{ r.snooze ? 'notifications_active' : 'notifications_paused' }}</mat-icon>
+                    {{ r.snooze ? 'Unsnooze' : 'Snooze' }}
+                </button>
+                <button mat-icon-button color="warn" (click)="delete(r.id)">
                     <mat-icon>delete</mat-icon>
                 </button>
-            </mat-list-item>
-        </mat-list>
-        <div class="empty" *ngIf="!loading() && !error() && !reminders().length">No nudges yet.</div>
-    </mat-card-content>
-</mat-card>
+            </mat-card-actions>
+        </mat-card>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading() && !error() && !reminders().length">
+        <mat-icon>notifications_none</mat-icon>
+        <h2>No Reminders Yet</h2>
+        <p>Create your first reminder to get started!</p>
+    </div>
+</div>

@@ -16,7 +16,12 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5174",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DB_HOST": "127.0.0.1",
+        "DB_PORT": "5432",
+        "DB_USER": "nudgeme",
+        "DB_PASSWORD": "nudgemepass",
+        "DB_NAME": "nudgeme"
       }
     },
     "IIS Express": {
@@ -24,7 +29,12 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DB_HOST": "127.0.0.1",
+        "DB_PORT": "5432",
+        "DB_USER": "nudgeme",
+        "DB_PASSWORD": "nudgemepass",
+        "DB_NAME": "nudgeme"
       }
     }
   }

@@ -1,0 +1,42 @@
+<div class="nudge-detail-container">
+  @if (loading) {
+    <div class="loading">Loading...</div>
+  } @else if (error) {
+    <div class="error">
+      <p>{{ error }}</p>
+      <button (click)="close()">Close</button>
+    </div>
+  } @else if (reminder) {
+    <div class="nudge-content">
+      <div class="nudge-header">
+        <span class="title">⏰ Nudge</span>
+        <div class="header-actions">
+          <button class="close-btn" (click)="close()">&times;</button>
+        </div>
+      </div>
+      
+      <div class="nudge-body">
+        @if (isEditMode()) {
+          <div class="edit-form">
+            <div class="form-group">
+              <label>Next Reminder:</label>
+              <input type="datetime-local" [(ngModel)]="editData.nextReminder" class="form-input" />
+            </div>
+          </div>
+        } @else {
+          <div class="info">{{ reminder.info }}</div>
+        }
+      </div>
+      
+      <div class="actions">
+        @if (isEditMode()) {
+          <button class="btn-save" (click)="saveChanges()">💾 Save</button>
+          <button class="btn-cancel" (click)="cancelEdit()">✖ Cancel</button>
+        } @else {
+          <button class="btn-snooze" (click)="snooze()">💤 Snooze</button>
+          <button class="btn-delete" (click)="deleteReminder()"> Done</button>
+        }
+      </div>
+    </div>
+  }
+</div>

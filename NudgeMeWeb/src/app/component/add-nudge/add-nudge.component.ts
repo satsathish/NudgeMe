@@ -14,7 +14,7 @@ import { ReminderService } from '../../service/remainder.service';
 import { Reminder } from '../../model/reminder.model';
 import { MatIcon } from '@angular/material/icon';
 
-interface AddNudgeForm { info: string; gapMinutes: number; }
+interface AddNudgeForm { info: string; date: Date | null; time: string | null; }
 
 @Component({
     selector: 'app-add-nudge',
@@ -36,15 +36,13 @@ export class AddNudgeComponent implements OnInit {
 
     form = this.fb.nonNullable.group({
         info: ['', [Validators.required, Validators.maxLength(500)]],
-        date: [null, [Validators.required]],
-        time: [null, [Validators.required]],
-        gap: [60, [Validators.required, Validators.min(1), Validators.max(24 * 60)]]
+        date: [null as Date | null, [Validators.required]],
+        time: [null as string | null, [Validators.required]]
     });
 
     private snack = inject(MatSnackBar);
 
     get info() { return this.form.controls.info; }
-    get gap() { return this.form.controls.gap; }
 
 
     ngOnInit(): void {
@@ -62,33 +60,30 @@ export class AddNudgeComponent implements OnInit {
         this.submitting.set(true);
         this.error.set(null);
 
-        // TODO: Inject a Reminder service once aligned with backend; placeholder below.
         const value = this.form.getRawValue();
         console.log('Submitting new nudge', value);
 
+        // Combine date and time into single DateTime
+        const nextReminder = new Date(value.date!);
+        if (value.time) {
+            const [hours, minutes] = value.time.split(':').map(Number);
+            nextReminder.setHours(hours, minutes, 0, 0);
+        }
 
-
-        this.reminderService.create(value.info, 60).subscribe({
-            next: (reminders) => console.log(reminders),
-            error: (err) => console.error(err)
+        this.reminderService.create(value.info, nextReminder).subscribe({
+            next: (reminder) => {
+                console.log('Created reminder:', reminder);
+                this.createdId.set(reminder.id);
+                this.form.reset();
+                this.snack.open('Nudge created', 'Close', { duration: 3000 });
+                this.submitting.set(false);
+            },
+            error: (err) => {
+                console.error('Error creating reminder:', err);
+                this.error.set(err.message || 'Failed to create');
+                this.snack.open(`Error: ${this.error()}`, 'Close', { duration: 4000 });
+                this.submitting.set(false);
+            }
         });
-        // Placeholder fetch example (adjust endpoint to match backend once service is updated):
-        // fetch('/api/Reminder', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({
-        //         info: value.info,
-        //         gap: { minutes: value.gapMinutes }
-        //     })
-        // }).then(async r => {
-        //     if (!r.ok) throw new Error(await r.text());
-        //     const data = await r.json();
-        //     this.createdId.set(data.id ?? null);
-        //     this.form.reset({ info: '', gapMinutes: 60 });
-        //     this.snack.open('Nudge created', 'Close', { duration: 3000 });
-        // }).catch(err => {
-        //     this.error.set(err.message || 'Failed to create');
-        //     this.snack.open(`Error: ${this.error()}`, 'Close', { duration: 4000 });
-        // }).finally(() => this.submitting.set(false));
     }
 }

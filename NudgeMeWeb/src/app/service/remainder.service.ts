@@ -16,14 +16,14 @@ export class ReminderService {
             .pipe(map(list => list.map(mapReminderDto)));
     }
 
-    create(info: string, gapMinutes: number): Observable<Reminder> {
-        const payload = toReminderCreatePayload({ info, gapMinutes });
+    create(info: string, nextReminder: Date): Observable<Reminder> {
+        const payload = toReminderCreatePayload({ info, nextReminder });
         return this.http.post<ReminderDto>(this.apiUrl + '/Reminder', payload)
             .pipe(map(mapReminderDto));
     }
 
-    update(id: number, patch: Partial<{ info: string; gapSeconds: number; lastReminded: string | null }>): Observable<void> {
-        return this.http.put<void>(`${this.apiUrl}/${id}`, patch);
+    update(id: number, patch: Partial<{ info: string; nextReminder: string; lastReminded: string | null }>): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/Reminder/${id}`, patch);
     }
 
     delete(id: number): Observable<void> {

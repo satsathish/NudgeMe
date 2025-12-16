@@ -1,15 +1,13 @@
 // Backend model reference (C# Reminder):
-// public class Reminder { Id:int; Info:string; CreatedDate:DateTime; LastReminded:DateTime?; Gap:TimeSpan; NextReminder => (LastReminded ?? CreatedDate)+Gap }
+// public class Reminder { Id:int; Info:string; CreatedDate:DateTime; LastReminded:DateTime?; NextReminder:DateTime; Snooze:bool }
 
 export interface ReminderDto {
     id: number;
     info: string;
     createdDate: string;          // ISO string from API
     lastReminded?: string | null; // ISO or null
-    gapSeconds: number;           // numeric seconds (if API returns gapSeconds)
     snooze: boolean;
-    // optional server computed field if later exposed
-    nextReminder?: string;
+    nextReminder: string;         // ISO string
 }
 
 export interface Reminder {
@@ -17,9 +15,8 @@ export interface Reminder {
     info: string;
     createdDate: Date;
     lastReminded: Date | null;
-    gap: number;          // total seconds
     snooze: boolean;
-    nextReminder?: Date;  // optional
+    nextReminder: Date;
 }
 
 export function mapReminderDto(dto: ReminderDto): Reminder {
@@ -28,16 +25,14 @@ export function mapReminderDto(dto: ReminderDto): Reminder {
         info: dto.info,
         createdDate: new Date(dto.createdDate),
         lastReminded: dto.lastReminded ? new Date(dto.lastReminded) : null,
-        gap: dto.gapSeconds,
         snooze: dto.snooze,
-        nextReminder: dto.nextReminder ? new Date(dto.nextReminder) : undefined
+        nextReminder: new Date(dto.nextReminder)
     };
 }
 
-export function toReminderCreatePayload(r: { info: string; gapMinutes: number }): any {
+export function toReminderCreatePayload(r: { info: string; nextReminder: Date }): any {
     return {
         info: r.info,
-        // backend expects gapSeconds field (adjust if different)
-        gapSeconds: r.gapMinutes * 60
+        nextReminder: r.nextReminder.toISOString()
     };
 }

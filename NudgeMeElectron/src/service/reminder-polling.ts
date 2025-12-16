@@ -6,7 +6,6 @@ interface Reminder {
     info: string;
     createdDate: string;
     lastReminded: string | null;
-    gap: string;
     nextReminder: string;
     snooze: boolean;
 }
@@ -97,8 +96,8 @@ export class ReminderPollingService {
         const notification = this.viewManager.get('notification');
 
         if (notification && !notification.isVisible()) {
-            // Pass reminder ID as query parameter to load specific reminder
-            const url = `${NudgeMeConstant.ADD_NUDGE_URL}/view-nudge?id=${reminder.id}`;
+            // Pass reminder ID to load specific reminder detail
+            const url = `${NudgeMeConstant.ADD_NUDGE_URL}/nudge/${reminder.id}`;
             notification.show(url);
 
             console.log(`Notification triggered for: ${reminder.info} at ${reminder.nextReminder}`);

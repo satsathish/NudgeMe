@@ -67,8 +67,8 @@ export class NudgeDetailComponent implements OnInit {
         
         this.reminderService.update(this.reminder.id, {
             info: this.reminder.info,
-            gapSeconds: this.reminder.gap,
-            lastReminded: nextReminderDate.toISOString()
+            nextReminder: nextReminderDate.toISOString(),
+            lastReminded: this.reminder.lastReminded ? this.reminder.lastReminded.toISOString() : null
         }).subscribe({
             next: () => {
                 this.loadReminder(this.reminder!.id);

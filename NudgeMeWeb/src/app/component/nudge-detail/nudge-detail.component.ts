@@ -46,19 +46,9 @@ export class NudgeDetailComponent implements OnInit {
                 this.reminder = reminder
                 if (!this.reminder) {
                     this.error = 'Reminder not found';
-                } else {
-                    // Convert nextReminder to datetime-local format (YYYY-MM-DDTHH:MM)
-                    if (this.reminder.nextReminder) {
-                        const date = new Date(this.reminder.nextReminder);
-                        // Use UTC values to avoid timezone conversion
-                        const year = date.getUTCFullYear();
-                        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-                        const day = String(date.getUTCDate()).padStart(2, '0');
-                        const hours = String(date.getUTCHours()).padStart(2, '0');
-                        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-                        this.editData.date = this.reminder.nextReminder;
-                    }
+                    return;
                 }
+                this.editData.date = this.reminder.nextReminder;
                 this.loading = false;
             },
             error: (err) => {
@@ -76,12 +66,7 @@ export class NudgeDetailComponent implements OnInit {
             nextReminder: this.editData.date!,
         }).subscribe({
             next: () => {
-                this.loadReminder(this.reminder!.id);
-                this.isEditMode.set(false);
-            },
-            error: (err) => {
-                console.error('Error updating reminder:', err);
-                alert('Failed to update reminder');
+                this.close();
             }
         });
     }
@@ -102,7 +87,6 @@ export class NudgeDetailComponent implements OnInit {
 
     deleteReminder(): void {
         if (!this.reminder) return;
-
         this.reminderService.delete(this.reminder.id).subscribe({
             next: () => {
                 console.log('Reminder deleted');
@@ -116,7 +100,9 @@ export class NudgeDetailComponent implements OnInit {
 
     close(): void {
         if ((window as any).electronAPI) {
-            (window as any).electronAPI.closeNotification();
+            (window as any).electronAPI.closeWindow();
+        } else {
+            window.close();
         }
     }
 }

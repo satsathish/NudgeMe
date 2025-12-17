@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, Menu, dialog } from 'electron';
+import { app, BrowserWindow, shell, Menu, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { NudgeMeWindow } from './views/nudgeme-window';
 import { NudgeMeNotification } from './views/nudgeme-notification';
@@ -24,9 +24,18 @@ app.whenReady().then(() => {
     //     nudgeMeWindow.hide();
     // });
 
-    // ipcMain.on('close-notification', () => {
-    //     nudgeMeNotification.hide();
-    // });
+    ipcMain.on('closeWindow', () => {
+        console.log('Received closeWindow event from renderer');
+        ViewManager.getInstance().hideAll();
+    });
+
+    ipcMain.on('closeNotification', () => {
+        console.log('Received closeNotification event from renderer');
+        const notification = ViewManager.getInstance().get('notification');
+        if (notification) {
+            notification.hide();
+        }
+    });
 
     app.setLoginItemSettings({
         openAtLogin: true,

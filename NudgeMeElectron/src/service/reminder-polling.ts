@@ -1,5 +1,7 @@
 import { NudgeMeConstant } from "../models/constant";
 import { ViewManager } from "./view-manager-service";
+import { from, EMPTY, interval, Subscription } from 'rxjs';
+import { switchMap, tap, filter, catchError, mergeMap } from 'rxjs/operators';
 
 interface Reminder {
     id: number;
@@ -11,7 +13,7 @@ interface Reminder {
 
 export class ReminderPollingService {
     private static instance: ReminderPollingService;
-    private intervalId: NodeJS.Timeout | null = null;
+    private subscription: Subscription | null = null;
     private viewManager: ViewManager;
 
     private constructor() {
@@ -26,69 +28,68 @@ export class ReminderPollingService {
     }
 
     start(): void {
-        if (this.intervalId) {
+        if (this.subscription) {
             console.log('Polling service already running');
             return;
         }
 
         console.log('Starting reminder polling service...');
 
-        // Check immediately
-        this.checkReminders();
-
-        // Then check every 1 minute
-        this.intervalId = setInterval(() => {
-            this.checkReminders();
-        }, 60 * 1000); // 60 seconds
+        // Check immediately, then every 60 seconds
+        this.subscription = interval(60 * 200).pipe(
+            tap(() => console.log('Checking for reminders...', `${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`)),
+            switchMap(() => this.checkReminders()),
+            catchError(error => {
+                console.error('Error in polling interval:', error);
+                return EMPTY;
+            })
+        ).subscribe();
     }
 
     stop(): void {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
             console.log('Polling service stopped');
         }
     }
 
-    private async checkReminders(): Promise<void> {
-        try {
-            console.log('Checking for reminders...', `${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`);
-            const response = await fetch(`${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`);
-
-            if (!response.ok) {
-                console.error('Failed to fetch reminders:', response.status, response.statusText);
-                return;
-            }
-
-            // Check if response is JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                console.error('Invalid response type:', contentType);
-                const text = await response.text();
-                console.error('Response body:', text.substring(0, 200));
-                return;
-            }
-
-            const reminders: Reminder[] = await response.json();
-            console.log(`Fetched ${reminders.length} reminders`);
-            const now = new Date();
-
-            reminders.forEach(reminder => {
-                console.log('Checking reminder:', reminder);
-
-                console.log('Checking reminder:', reminder.info, reminder.nextReminder);
-                const reminderTime = new Date(reminder.nextReminder);
-                const timeDiff = reminderTime.getTime() - now.getTime();
-
-                // Trigger notification if reminder time is within the next minute
-                // or if it's already past (within last 5 minutes to avoid spam)
-                if (timeDiff >= -300000 && timeDiff <= 60000) {
-                    this.triggerNotification(reminder);
+    private checkReminders() {
+        return from(fetch(`${NudgeMeConstant.ADD_NUDGE_URL}/Reminder`)).pipe(
+            switchMap(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch reminders: ${response.status} ${response.statusText}`);
                 }
-            });
-        } catch (error) {
-            console.error('Error checking reminders:', error);
-        }
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error(`Invalid response type: ${contentType}`);
+                }
+
+                return from(response.json());
+            }),
+            mergeMap((reminders: Reminder[]) => from(reminders.filter(r => r.snooze === false))),
+            filter(reminder => {
+                if (!reminder) {
+                    return false;
+                }
+
+                const now = new Date(); // System local time
+                const reminderTime = new Date(reminder.nextReminder);
+
+                // Trigger if current time >= reminder time (and not too old, within last 5 minutes)
+                const shouldTrigger = now.getTime() >= reminderTime.getTime();
+              
+                console.log('Should trigger:', shouldTrigger);
+                
+                return shouldTrigger;
+            }),
+            tap(reminder => this.triggerNotification(reminder)),
+            catchError(error => {
+                console.error('Error checking reminders:', error);
+                return EMPTY;
+            })
+        );
     }
 
     private triggerNotification(reminder: Reminder): void {
@@ -104,7 +105,7 @@ export class ReminderPollingService {
     }
 
     // Manual check for testing
-    async checkNow(): Promise<void> {
-        await this.checkReminders();
+    checkNow(): Subscription {
+        return this.checkReminders().subscribe();
     }
 }

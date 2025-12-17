@@ -1,4 +1,5 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, screen } from "electron";
+import * as path from "path";
 
 export interface WindowDimensions {
     x: number;
@@ -95,7 +96,13 @@ export abstract class AbstractNudgeMeView {
             x: dimensions.x,
             y: dimensions.y,
             width: dimensions.width,
-            height: dimensions.height
+            height: dimensions.height,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true,
+                nodeIntegration: false,
+                ...options.webPreferences
+            }
         });
 
         this._browerWindow.on('close', (e) => {

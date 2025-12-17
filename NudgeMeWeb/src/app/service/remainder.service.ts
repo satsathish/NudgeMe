@@ -31,7 +31,7 @@ export class ReminderService {
     }
 
     delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+        return this.http.delete<void>(`${this.apiUrl}/Reminder/${id}`);
     }
 
     updateSnooze(id: number, snooze: boolean): Observable<void> {

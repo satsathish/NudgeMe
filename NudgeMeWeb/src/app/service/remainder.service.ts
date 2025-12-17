@@ -26,7 +26,7 @@ export class ReminderService {
             .pipe(map(mapReminderDto));
     }
 
-    update(id: number, patch: Partial<{ info: string; nextReminder: string }>): Observable<void> {
+    update(id: number, patch: Partial<{ info: string; nextReminder: Date; }>): Observable<void> {
         return this.http.put<void>(`${this.apiUrl}/Reminder/${id}`, patch);
     }
 

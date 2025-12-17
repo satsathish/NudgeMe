@@ -4,38 +4,46 @@
         <form (ngSubmit)="submit()" [formGroup]="form" class="nudge-form" novalidate>
             <mat-form-field appearance="outline" class="full">
                 <mat-label>Info</mat-label>
-                <textarea matInput rows="2" formControlName="info" placeholder="What should we remind you?"></textarea>
+                <textarea matInput rows="2" formControlName="info" placeholder="What should we remind you?" [disabled]="submitting()"></textarea>
                 <mat-error *ngIf="info.hasError('required')">Info is required</mat-error>
                 <mat-error *ngIf="info.hasError('maxLength')">Max 500 characters</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline" class="gap-field">
                 <mat-label>Choose a date</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="date">
+                <input matInput [matDatepicker]="picker" formControlName="date" [disabled]="submitting()">
                 <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matIconSuffix [for]="picker">
+                <mat-datepicker-toggle matIconSuffix [for]="picker" [disabled]="submitting()">
                     <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
                 </mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
             <mat-form-field appearance="outline" class="gap-field">
                 <mat-label>Timing</mat-label>
-                <input matInput [matTimepicker]="hoursPicker" formControlName="time">
-                <mat-timepicker-toggle matIconSuffix [for]="hoursPicker" />
+                <input matInput [matTimepicker]="hoursPicker" formControlName="time" [disabled]="submitting()">
+                <mat-timepicker-toggle matIconSuffix [for]="hoursPicker" [disabled]="submitting()" />
                 <mat-timepicker interval="0.5h" #hoursPicker />
             </mat-form-field>
             <div class="actions">
                 <button mat-flat-button color="primary" type="submit" [disabled]="submitting() || form.invalid">
-                    <ng-container *ngIf="!submitting(); else saving">Save</ng-container>
+                    <ng-container *ngIf="!submitting(); else saving">
+                        <mat-icon>add</mat-icon> Create Nudge
+                    </ng-container>
                 </button>
                 <ng-template #saving>
                     <span class="saving-wrapper">
                         <mat-spinner diameter="20"></mat-spinner>
-                        Saving...
+                        Creating...
                     </span>
                 </ng-template>
             </div>
         </form>
-        <div class="result" *ngIf="createdId() as id">Created reminder #{{ id }}</div>
-        <div class="error" *ngIf="error() as e">Error: {{ e }}</div>
+        <div class="success-message" *ngIf="createdId() as id">
+            <mat-icon>check_circle</mat-icon>
+            <span>Reminder #{{ id }} created successfully!</span>
+        </div>
+        <div class="error-message" *ngIf="error() as e">
+            <mat-icon>error</mat-icon>
+            <span>{{ e }}</span>
+        </div>
     </mat-card-content>
 </mat-card>

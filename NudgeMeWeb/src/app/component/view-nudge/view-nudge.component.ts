@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Reminder } from '../../model/reminder.model';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-view-nudge',
@@ -19,6 +20,7 @@ import { Reminder } from '../../model/reminder.model';
 })
 export class ViewNudgeComponent {
     private service = inject(ReminderService);
+    private router = inject(Router);
     loading = signal(true);
     error = signal<string | null>(null);
     reminders = signal<Reminder[]>([]);
@@ -40,7 +42,7 @@ export class ViewNudgeComponent {
     toggleSnooze(reminder: Reminder) {
         this.service.updateSnooze(reminder.id, !reminder.snooze).subscribe({
             next: () => {
-                const updated = this.reminders().map(r => 
+                const updated = this.reminders().map(r =>
                     r.id === reminder.id ? { ...r, snooze: !r.snooze } : r
                 );
                 this.reminders.set(updated);
@@ -57,5 +59,9 @@ export class ViewNudgeComponent {
             },
             error: (err) => console.error('Failed to delete:', err)
         });
+    }
+
+    edit(id: number) {
+        this.router.navigate(['/nudge', id]);
     }
 }

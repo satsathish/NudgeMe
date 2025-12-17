@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReminderService } from '../../service/remainder.service';
 import { Reminder } from '../../model/reminder.model';
+import { AddNudgeForm } from '../add-nudge/add-nudge.component';
 
 @Component({
     selector: 'app-nudge-detail',
@@ -18,8 +19,10 @@ export class NudgeDetailComponent implements OnInit {
     error: string | null = null;
     isEditMode = signal(false);
 
-    editData = {
-        nextReminder: ''
+    editData: AddNudgeForm = {
+        info: '',
+        date: null,
+        time: null
     };
 
     constructor(
@@ -38,16 +41,22 @@ export class NudgeDetailComponent implements OnInit {
     }
 
     loadReminder(id: number): void {
-        this.reminderService.getAll().subscribe({
-            next: (reminders) => {
-                this.reminder = reminders.find(r => r.id === id) || null;
+        this.reminderService.getNudgeId(id).subscribe({
+            next: (reminder: Reminder) => {
+                this.reminder = reminder
                 if (!this.reminder) {
                     this.error = 'Reminder not found';
                 } else {
-                    // Convert nextReminder to datetime-local format
+                    // Convert nextReminder to datetime-local format (YYYY-MM-DDTHH:MM)
                     if (this.reminder.nextReminder) {
                         const date = new Date(this.reminder.nextReminder);
-                        this.editData.nextReminder = date.toISOString().slice(0, 16);
+                        // Use UTC values to avoid timezone conversion
+                        const year = date.getUTCFullYear();
+                        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                        const day = String(date.getUTCDate()).padStart(2, '0');
+                        const hours = String(date.getUTCHours()).padStart(2, '0');
+                        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                        this.editData.date = this.reminder.nextReminder;
                     }
                 }
                 this.loading = false;
@@ -62,13 +71,9 @@ export class NudgeDetailComponent implements OnInit {
 
     saveChanges(): void {
         if (!this.reminder) return;
-
-        const nextReminderDate = new Date(this.editData.nextReminder);
-        
         this.reminderService.update(this.reminder.id, {
             info: this.reminder.info,
-            nextReminder: nextReminderDate.toISOString(),
-            lastReminded: this.reminder.lastReminded ? this.reminder.lastReminded.toISOString() : null
+            nextReminder: this.editData.date!,
         }).subscribe({
             next: () => {
                 this.loadReminder(this.reminder!.id);
@@ -90,7 +95,7 @@ export class NudgeDetailComponent implements OnInit {
         if (this.isEditMode() && this.reminder) {
             if (this.reminder.nextReminder) {
                 const date = new Date(this.reminder.nextReminder);
-                this.editData.nextReminder = date.toISOString().slice(0, 16);
+                //  this.editData.date = date.toISOString().slice(0, 16);
             }
         }
     }

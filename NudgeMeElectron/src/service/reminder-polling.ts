@@ -5,7 +5,6 @@ interface Reminder {
     id: number;
     info: string;
     createdDate: string;
-    lastReminded: string | null;
     nextReminder: string;
     snooze: boolean;
 }

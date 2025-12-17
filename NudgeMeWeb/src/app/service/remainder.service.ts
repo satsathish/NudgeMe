@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 @Injectable()
 export class ReminderService {
     private readonly http = inject(HttpClient);
-    
+
     // Dynamically construct API URL based on current domain
     private apiUrl = `${window.location.origin}`;
 
@@ -16,13 +16,17 @@ export class ReminderService {
             .pipe(map(list => list.map(mapReminderDto)));
     }
 
+    getNudgeId(id: number): Observable<Reminder> {
+        return this.http.get<Reminder>(this.apiUrl + `/Reminder/Nudge/${id}`);
+    }
+
     create(info: string, nextReminder: Date): Observable<Reminder> {
         const payload = toReminderCreatePayload({ info, nextReminder });
         return this.http.post<ReminderDto>(this.apiUrl + '/Reminder', payload)
             .pipe(map(mapReminderDto));
     }
 
-    update(id: number, patch: Partial<{ info: string; nextReminder: string; lastReminded: string | null }>): Observable<void> {
+    update(id: number, patch: Partial<{ info: string; nextReminder: string }>): Observable<void> {
         return this.http.put<void>(`${this.apiUrl}/Reminder/${id}`, patch);
     }
 

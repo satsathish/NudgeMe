@@ -37,7 +37,6 @@ namespace RemindersApi.Controllers
                         id SERIAL PRIMARY KEY,
                         info TEXT NOT NULL,
                         createdDate TIMESTAMP NOT NULL,
-                        lastReminded TIMESTAMP,
                         nextReminder TIMESTAMP NOT NULL,
                         snooze BOOLEAN NOT NULL DEFAULT false
                     )";
@@ -45,7 +44,7 @@ namespace RemindersApi.Controllers
             }
 
             using var selectCmd = connection.CreateCommand();
-            selectCmd.CommandText = "SELECT id, info, createdDate, lastReminded, nextReminder, snooze FROM reminders ORDER BY id";
+            selectCmd.CommandText = "SELECT id, info, createdDate, nextReminder, snooze FROM reminders ORDER BY id";
             using var reader = selectCmd.ExecuteReader();
             while (reader.Read())
             {
@@ -54,12 +53,38 @@ namespace RemindersApi.Controllers
                     Id = reader.GetInt32(0),
                     Info = reader.GetString(1),
                     CreatedDate = reader.GetDateTime(2),
-                    LastReminded = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3),
-                    NextReminder = reader.GetDateTime(4),
-                    Snooze = reader.GetBoolean(5)
+                    NextReminder = reader.GetDateTime(3),
+                    Snooze = reader.GetBoolean(4)
                 });
             }
             return Ok(reminders);
+        }
+
+        [HttpGet("Nudge/{id}")]
+        public IActionResult GetById(int id)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+            
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = "SELECT id, info, createdDate, nextReminder, snooze FROM reminders WHERE id = @id";
+            cmd.Parameters.AddWithValue("@id", id);
+            
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                var reminder = new Reminder
+                {
+                    Id = reader.GetInt32(0),
+                    Info = reader.GetString(1),
+                    CreatedDate = reader.GetDateTime(2),
+                    NextReminder = reader.GetDateTime(3),
+                    Snooze = reader.GetBoolean(4)
+                };
+                return Ok(reminder);
+            }
+            
+            return NotFound();
         }
 
         [HttpPost]
@@ -70,11 +95,10 @@ namespace RemindersApi.Controllers
             
             using var cmd = connection.CreateCommand();
             cmd.CommandText = @"
-                INSERT INTO reminders (info, createdDate, lastReminded, nextReminder, snooze) 
-                VALUES (@info, @createdDate, @lastReminded, @nextReminder, @snooze)";
+                INSERT INTO reminders (info, createdDate, nextReminder, snooze) 
+                VALUES (@info, @createdDate, @nextReminder, @snooze)";
             cmd.Parameters.AddWithValue("@info", reminder.Info);
             cmd.Parameters.AddWithValue("@createdDate", DateTime.UtcNow);
-            cmd.Parameters.AddWithValue("@lastReminded", DBNull.Value);
             cmd.Parameters.AddWithValue("@nextReminder", reminder.NextReminder);
             cmd.Parameters.AddWithValue("@snooze", reminder.Snooze);
             cmd.ExecuteNonQuery();
@@ -90,11 +114,10 @@ namespace RemindersApi.Controllers
             using var cmd = connection.CreateCommand();
             cmd.CommandText = @"
                 UPDATE reminders 
-                SET info = @info, createdDate = @createdDate, lastReminded = @lastReminded, nextReminder = @nextReminder, snooze = @snooze 
+                SET info = @info, createdDate = @createdDate, nextReminder = @nextReminder, snooze = @snooze 
                 WHERE id = @id";
             cmd.Parameters.AddWithValue("@info", reminder.Info);
             cmd.Parameters.AddWithValue("@createdDate", reminder.CreatedDate);
-            cmd.Parameters.AddWithValue("@lastReminded", reminder.LastReminded ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@nextReminder", reminder.NextReminder);
             cmd.Parameters.AddWithValue("@snooze", reminder.Snooze);
             cmd.Parameters.AddWithValue("@id", id);

@@ -23,12 +23,12 @@
                     <div class="title-row">
                         <span class="info">{{ r.info }}</span>
                         <span class="snooze-badge" [class.active]="r.snooze">
-                            {{ r.snooze ? 'SNOOZED' : 'ACTIVE' }} {{r.snooze}}
+                            {{ r.snooze ? 'SNOOZED' : 'ACTIVE' }}
                         </span>
                     </div>
                 </mat-card-title>
             </mat-card-header>
-            
+
             <mat-card-content>
                 <div class="details-grid">
                     <div class="detail-item">
@@ -58,14 +58,15 @@
             </mat-card-content>
 
             <mat-card-actions>
-                <button mat-raised-button 
-                        [color]="r.snooze ? 'accent' : 'primary'" 
-                        (click)="toggleSnooze(r)">
+                <button mat-raised-button [color]="r.snooze ? 'accent' : 'primary'" (click)="toggleSnooze(r)">
                     <mat-icon>{{ r.snooze ? 'notifications_active' : 'notifications_paused' }}</mat-icon>
                     {{ r.snooze ? 'Unsnooze' : 'Snooze' }}
                 </button>
                 <button mat-icon-button color="warn" (click)="delete(r.id)">
                     <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="edit(r.id)">
+                    <mat-icon>edit</mat-icon>
                 </button>
             </mat-card-actions>
         </mat-card>

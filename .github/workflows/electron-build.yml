@@ -3,7 +3,7 @@ name: Build Electron EXE
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'NudgeMeElectron/**'
 

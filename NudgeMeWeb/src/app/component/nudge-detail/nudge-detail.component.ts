@@ -5,11 +5,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReminderService } from '../../service/remainder.service';
 import { Reminder } from '../../model/reminder.model';
 import { AddNudgeForm } from '../add-nudge/add-nudge.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector: 'app-nudge-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
     templateUrl: './nudge-detail.component.html',
     styleUrl: './nudge-detail.component.scss'
 })

@@ -1,42 +1,54 @@
 <div class="nudge-detail-container">
-  @if (loading) {
-    <div class="loading">Loading...</div>
-  } @else if (error) {
-    <div class="error">
-      <p>{{ error }}</p>
-      <button (click)="close()">Close</button>
-    </div>
-  } @else if (reminder) {
-    <div class="nudge-content">
-      <div class="nudge-header">
-        <span class="title">⏰ Nudge</span>
-        <div class="header-actions">
-          <button class="close-btn" (click)="close()">&times;</button>
+    @if (loading) {
+        <div class="state-overlay">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading...</p>
         </div>
-      </div>
-      
-      <div class="nudge-body">
-        @if (isEditMode()) {
-          <div class="edit-form">
-            <div class="form-group">
-              <label>Next Reminder:</label>
-              <input type="datetime-local" [(ngModel)]="editData.date" class="form-input" />
-            </div>
-          </div>
-        } @else {
-          <div class="info">{{ reminder.info }}</div>
-        }
-      </div>
-      
-      <div class="actions">
-        @if (isEditMode()) {
-          <button class="btn-save" (click)="saveChanges()">💾 Save</button>
-          <button class="btn-cancel" (click)="cancelEdit()">✖ Cancel</button>
-        } @else {
-          <button class="btn-snooze" (click)="snooze()">💤 Snooze</button>
-          <button class="btn-delete" (click)="deleteReminder()"> Done</button>
-        }
-      </div>
-    </div>
-  }
+    } @else if (error) {
+        <div class="state-overlay">
+            <mat-icon class="state-icon error-icon">error_outline</mat-icon>
+            <p>{{ error }}</p>
+            <button mat-stroked-button (click)="close()">Close</button>
+        </div>
+    } @else if (reminder) {
+        <mat-card class="nudge-card">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>alarm</mat-icon>
+                <mat-card-title>Nudge</mat-card-title>
+                <mat-card-subtitle>{{ reminder.nextReminder | date:'medium' }}</mat-card-subtitle>
+                <button mat-icon-button class="close-btn" (click)="close()" title="Close">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-card-header>
+
+            <mat-card-content>
+                @if (isEditMode()) {
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Reschedule to</mat-label>
+                        <input matInput type="datetime-local" [(ngModel)]="editData.date" />
+                    </mat-form-field>
+                } @else {
+                    <p class="reminder-info">{{ reminder.info }}</p>
+                }
+            </mat-card-content>
+
+            <mat-card-actions align="end">
+                @if (isEditMode()) {
+                    <button mat-button (click)="cancelEdit()">
+                        <mat-icon>close</mat-icon> Cancel
+                    </button>
+                    <button mat-flat-button color="primary" (click)="saveChanges()">
+                        <mat-icon>save</mat-icon> Save
+                    </button>
+                } @else {
+                    <button mat-stroked-button (click)="snooze()">
+                        <mat-icon>bedtime</mat-icon> Snooze
+                    </button>
+                    <button mat-flat-button color="primary" (click)="deleteReminder()">
+                        <mat-icon>check</mat-icon> Done
+                    </button>
+                }
+            </mat-card-actions>
+        </mat-card>
+    }
 </div>

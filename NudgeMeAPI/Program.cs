@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using NudgeMeAPI.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure WebRootPath to use wwwroot from output directory
@@ -14,6 +17,19 @@ Console.WriteLine($"Directory exists: {Directory.Exists(outputWwwroot)}");
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+
+// Configure Postgres connection from appsettings / environment variables (Kubernetes)
+var dbHost = builder.Configuration["Database:Host"] ?? "nudgeme-postgresql";
+var dbPort = builder.Configuration["Database:Port"] ?? "5432";
+var dbUser = builder.Configuration["Database:Username"] ?? "nudgeme";
+var dbPassword = builder.Configuration["Database:Password"] ?? "nudgemepass";
+var dbName = builder.Configuration["Database:Name"] ?? "nudgeme";
+var connectionString = $"Host={dbHost};Port={dbPort};Username={dbUser};Password={dbPassword};Database={dbName}";
+Console.WriteLine($"Connecting to database: Host={dbHost}, Port={dbPort}, Database={dbName}");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
 
 // CORS: explicit origins (wildcard + credentials is invalid). Use env var ALLOWED_ORIGINS (comma-separated) or fallback list.
 const string CorsPolicy = "NudgeMeCors";
@@ -39,6 +55,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Ensure database and table exist
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Serve static files first
 app.UseDefaultFiles();

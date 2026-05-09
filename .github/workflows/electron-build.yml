@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - 'NudgeMeElectron/**'
+      - '.github/workflows/electron-build.yml'
+  workflow_dispatch:
 
 jobs:
   build-win:
